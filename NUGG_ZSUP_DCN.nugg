@@ -1,0 +1,1215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nugget name="ZSUP_DCN">
+ <CLAS CLSNAME="ZCL_SUP_DCN" VERSION="1" LANGU="E" DESCRIPT="SUP Data Change Notification" CATEGORY="00" EXPOSURE="2" STATE="1" RELEASE="0" CLSFINAL="X" CLSCCINCL="X" FIXPT="X" UNICODE="X" CLSBCCAT="00" DURATION_TYPE="0 " RISK_LEVEL="0 ">
+  <localImplementation>*&quot;* use this source file for the definition and implementation of
+*&quot;* local helper classes, interface definitions and type
+*&quot;* declarations</localImplementation>
+  <localTypes>*&quot;* use this source file for any type of declarations (class
+*&quot;* definitions, interfaces or type declarations) you need for
+*&quot;* components in the private section</localTypes>
+  <localMacros>*&quot;* use this source file for any macro definitions you need
+*&quot;* in the implementation part of the class</localMacros>
+  <typeUsage CLSNAME="ZCL_SUP_DCN" TYPEGROUP="ABAP" VERSION="1" TPUTYPE="0" IMPLICIT="X"/>
+  <forwardDeclaration>ABAP</forwardDeclaration>
+  <attribute CLSNAME="ZCL_SUP_DCN" CMPNAME="DCNQS" VERSION="1" LANGU="E" DESCRIPT="SUP DCN Query String" EXPOSURE="2" STATE="1" EDITORDER="1 " ATTDECLTYP="0" ATTEXPVIRT="0" TYPTYPE="1" TYPE="ZSUP_DCN_QS" SRCROW1="0 " SRCCOLUMN1="0 " SRCROW2="0 " SRCCOLUMN2="0 " TYPESRC_LENG="0 "/>
+  <attribute CLSNAME="ZCL_SUP_DCN" CMPNAME="DCN_REQUEST" VERSION="1" LANGU="E" DESCRIPT="DCN Request for JSON message" EXPOSURE="2" STATE="1" EDITORDER="2 " ATTDECLTYP="0" ATTEXPVIRT="0" TYPTYPE="1" TYPE="ZSUP_DCN_REQUEST" SRCROW1="0 " SRCCOLUMN1="0 " SRCROW2="0 " SRCCOLUMN2="0 " TYPESRC_LENG="0 "/>
+  <attribute CLSNAME="ZCL_SUP_DCN" CMPNAME="FORM_FIELDS" VERSION="1" LANGU="E" DESCRIPT="HTTP Framework (iHTTP) Table Name/Value Pairs" EXPOSURE="2" STATE="1" EDITORDER="3 " ATTDECLTYP="0" ATTEXPVIRT="0" TYPTYPE="1" TYPE="TIHTTPNVP" SRCROW1="0 " SRCCOLUMN1="0 " SRCROW2="0 " SRCCOLUMN2="0 " TYPESRC_LENG="0 "/>
+  <attribute CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_RFCDEST" VERSION="1" LANGU="E" DESCRIPT="Logical Destination (Specified in Function Call)" EXPOSURE="2" STATE="1" EDITORDER="6 " ATTDECLTYP="0" ATTEXPVIRT="0" TYPTYPE="1" TYPE="RFCDEST" SRCROW1="0 " SRCCOLUMN1="0 " SRCROW2="0 " SRCCOLUMN2="0 " TYPESRC_LENG="0 "/>
+  <attribute CLSNAME="ZCL_SUP_DCN" CMPNAME="XCRLF" VERSION="1" LANGU="E" EXPOSURE="2" STATE="1" EDITORDER="5 " ATTDECLTYP="2" ATTVALUE="%_CR_LF" ATTEXPVIRT="0" TYPTYPE="1" TYPE="ABAP_CR_LF" SRCROW1="0 " SRCCOLUMN1="0 " SRCROW2="0 " SRCCOLUMN2="0 " TYPESRC_LENG="0 "/>
+  <attribute CLSNAME="ZCL_SUP_DCN" CMPNAME="XNL" VERSION="1" LANGU="E" EXPOSURE="2" STATE="1" EDITORDER="4 " ATTDECLTYP="2" ATTVALUE="%_NEWLINE" ATTEXPVIRT="0" TYPTYPE="1" TYPE="ABAP_CHAR1" SRCROW1="0 " SRCCOLUMN1="0 " SRCROW2="0 " SRCCOLUMN2="0 " TYPESRC_LENG="0 "/>
+  <method CLSNAME="ZCL_SUP_DCN" CMPNAME="ABAP2JSON" VERSION="1" LANGU="E" DESCRIPT="Serialize ABAP into JSON" EXPOSURE="2" STATE="1" EDITORDER="3 " DISPID="0 " MTDTYPE="0" MTDDECLTYP="1" BCMTDCAT="00" BCMTDSYN="0">
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="ABAP2JSON" SCONAME="ABAP_DATA" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="1 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="DATA"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="ABAP2JSON" SCONAME="NAME" VERSION="1" LANGU="E" DESCRIPT="Parameter name (isolated scalars and recursive calls)" CMPTYPE="1" MTDTYPE="0" EDITORDER="2 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="ABAP2JSON" SCONAME="UPCASE" VERSION="1" LANGU="E" DESCRIPT="Put names in upper case (defaults to lower case)" CMPTYPE="1" MTDTYPE="0" EDITORDER="3 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="XFELD" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="ABAP2JSON" SCONAME="JSON_STRING" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="4 " DISPID="0 " PARDECLTYP="3" PARPASSTYP="0" TYPTYPE="1" TYPE="STRING"/>
+   <source>method ABAP2JSON.
+*/***************************************************************/*
+*/ This method takes any ABAP data variable and returns a string /*
+*/ representing its value in JSON format.                        /*
+*/ Check how ABAP references are managed if you want to change   /*
+*/ whether MBO field names are sent in upper or lower case       /*
+*/ Also, feel free to modify in the Scalars section how you want /*
+*/ ABAP values to be represented in the MBO.                     /*
+*/***************************************************************/*
+
+  type-pools: abap.
+
+  constants:
+    c_comma type c value &apos;,&apos;,
+    c_colon type c value &apos;:&apos;,
+    c_quote type c value &apos;&quot;&apos;.
+
+  data:
+    dont_quote type xfeld,
+    json_fragments type table of string,
+    rec_json_string type string,
+    l_name type string,
+    l_upcase type xfeld,
+    l_type  type c ,
+    l_comps type i ,
+    l_lines type i ,
+    l_index type i ,
+    l_value type string,
+    l_typedescr type ref to cl_abap_structdescr.
+
+  field-symbols:
+    &lt;abap_data&gt; type any,
+    &lt;itab&gt; type any table,
+    &lt;stru&gt; type any table,
+    &lt;comp&gt; type any,
+    &lt;abapcomp&gt; type abap_compdescr.
+
+  l_upcase = upcase.
+
+***************************************************
+*  Prepare field names, JSON does quote names!!   *
+*  You must be strict in what you produce.        *
+***************************************************
+  if name is not initial.
+    concatenate c_quote name c_quote c_colon into rec_json_string.
+    append rec_json_string to json_fragments.
+    clear rec_json_string.
+  endif.
+
+
+**
+* Get ABAP data type
+  describe field abap_data type l_type components l_comps.
+
+***************************************************
+*  Get rid of data references
+***************************************************
+  if l_type eq cl_abap_typedescr=&gt;typekind_dref.
+    assign abap_data-&gt;* to &lt;abap_data&gt;.
+    if sy-subrc ne 0.
+      append &apos;{}&apos; to json_fragments.
+      concatenate lines of json_fragments into json_string.
+      exit.
+    else.
+*! This is special for the SUP DCN adapter:
+*! We want names in DCN messages to be in caps.
+*! Change the l_upcase if your MBO field names are lower case.
+      l_upcase = &apos;X&apos;.
+    endif.
+  else.
+    assign abap_data to &lt;abap_data&gt;.
+  endif.
+
+
+
+* Get ABAP data type again and start
+  describe field &lt;abap_data&gt; type l_type components l_comps.
+
+***************************************************
+*  Tables
+***************************************************
+  if l_type eq cl_abap_typedescr=&gt;typekind_table.
+* &apos;[&apos; JSON table opening bracket
+    append &apos;[&apos; to json_fragments.
+    assign &lt;abap_data&gt; to &lt;itab&gt;.
+    l_lines = lines( &lt;itab&gt; ).
+    loop at &lt;itab&gt; assigning &lt;comp&gt;.
+      add 1 to l_index.
+*&gt; Recursive call here
+      rec_json_string = abap2json( abap_data = &lt;comp&gt;  upcase = l_upcase ).
+      append rec_json_string to json_fragments.
+      clear rec_json_string.
+      if l_index &lt; l_lines.
+        append c_comma to json_fragments.
+      endif.
+    endloop.
+    append &apos;]&apos; to json_fragments.
+* &apos;]&apos; JSON table closing bracket
+
+
+
+***************************************************
+*  Structures
+***************************************************
+  else .
+    if l_comps is not initial.
+* &apos;{&apos; JSON object opening curly brace
+      append &apos;{&apos; to json_fragments .
+      l_typedescr ?= cl_abap_typedescr=&gt;describe_by_data( &lt;abap_data&gt; ) .
+      loop at l_typedescr-&gt;components assigning &lt;abapcomp&gt; .
+        l_index = sy-tabix .
+        assign component &lt;abapcomp&gt;-name of structure &lt;abap_data&gt; to &lt;comp&gt;.
+        l_name = &lt;abapcomp&gt;-name.
+** ABAP names are usually in caps, set upcase to avoid the conversion to lower case.
+        if l_upcase ne &apos;X&apos;.
+          translate l_name to lower case.
+        endif.
+*&gt; Recursive call here
+        rec_json_string = abap2json( abap_data = &lt;comp&gt; name = l_name upcase = l_upcase ).
+        append rec_json_string to json_fragments.
+        clear rec_json_string.
+        if l_index &lt; l_comps.
+          append c_comma to json_fragments.
+        endif.
+      endloop.
+      append &apos;}&apos; to json_fragments.
+* &apos;}&apos; JSON object closing curly brace
+
+
+
+
+
+****************************************************
+*                  - Scalars -                     *
+* Feel free here to adapt how the basic ABAP types *
+* are represented in JSON.                         *
+****************************************************
+    else.
+      l_value = &lt;abap_data&gt;.
+* Adapt some basic ABAP types (pending inclusion of all basic abap types)
+* Feel free to customize this for your needs
+      case l_type.
+*       1. ABAP numeric types
+        when &apos;I&apos;. &quot; Integer
+          condense l_value.
+          if l_value &lt; 0.
+            shift l_value by 1 places right circular.
+          endif.
+          dont_quote = &apos;X&apos;.
+
+        when &apos;F&apos;. &quot; Float (pending transformation to JSON float format with no quotes)
+*          condense l_value.
+
+        when &apos;P&apos;. &quot; Packed number (used in quantities, for example)
+          condense l_value.
+
+        when &apos;X&apos;. &quot; Hexadecimal
+*         &quot; Leave it as is, as JSON doesn&apos;t support Hex or Octal.
+
+*       2. ABAP char types
+        when &apos;D&apos;. &quot; Date type
+          CONCATENATE l_value(4) &apos;-&apos; l_value+4(2) &apos;-&apos; l_value+6(2) INTO l_value.
+
+        when &apos;T&apos;. &quot; Time representation
+          CONCATENATE l_value(2) &apos;:&apos; l_value+2(2) &apos;:&apos; l_value+4(2) INTO l_value.
+
+        when &apos;N&apos;. &quot; Numeric text field
+*           condense l_value.
+
+        when &apos;C&apos; or &apos;g&apos;. &quot; Char sequences and Strings
+* Put safe chars
+          replace all occurrences of &apos;\&apos; in l_value with &apos;\\&apos; .
+          replace all occurrences of &apos;&quot;&apos; in l_value with &apos;\&quot;&apos; .
+          replace all occurrences of cl_abap_char_utilities=&gt;cr_lf in l_value with &apos;\r\n&apos; .
+          replace all occurrences of cl_abap_char_utilities=&gt;newline in l_value with &apos;\n&apos; .
+          replace all occurrences of cl_abap_char_utilities=&gt;horizontal_tab in l_value with &apos;\t&apos; .
+          replace all occurrences of cl_abap_char_utilities=&gt;backspace in l_value with &apos;\b&apos; .
+          replace all occurrences of cl_abap_char_utilities=&gt;form_feed in l_value with &apos;\f&apos; .
+
+        when &apos;y&apos;.  &quot; XSTRING
+* Put the XSTRING in Base64
+          l_value = cl_http_utility=&gt;ENCODE_X_BASE64( &lt;abap_data&gt; ). &quot; only in 7.31
+*          l_value = cl_http_utility=&gt;ENCODE_BASE64( &lt;abap_data&gt; ). &quot; A ver en 7.02...
+
+
+        when others.
+* Don&apos;t hesitate to add and modify abap types to suit your taste.
+
+      endcase.
+** End of scalar data preparing.
+
+* Enclose value in quotes (or not)
+      if dont_quote ne &apos;X&apos;.
+        concatenate c_quote l_value c_quote into l_value.
+      else.
+        clear dont_quote.
+      endif.
+
+      append l_value to json_fragments.
+
+    endif.
+* End of structure/scalar IF block.
+***********************************
+
+
+  endif.
+* End of main IF block.
+**********************
+
+
+* Use a loop in older releases that don&apos;t support concatenate lines.
+  concatenate lines of json_fragments into json_string.
+
+endmethod.</source>
+  </method>
+  <method CLSNAME="ZCL_SUP_DCN" CMPNAME="ADD_MESSAGE" VERSION="1" LANGU="E" DESCRIPT="Add a message to the DCN request" EXPOSURE="2" STATE="1" EDITORDER="7 " DISPID="0 " MTDTYPE="0" MTDDECLTYP="0" BCMTDCAT="00" BCMTDSYN="0">
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="ADD_MESSAGE" SCONAME="ID" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="1 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="ADD_MESSAGE" SCONAME="MBO" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="2 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="ADD_MESSAGE" SCONAME="OP" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="3 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="ADD_MESSAGE" SCONAME="COLS" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="4 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="ANY"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="ADD_MESSAGE" SCONAME="RETURN_CODE" VERSION="1" LANGU="E" DESCRIPT="Natural number" CMPTYPE="1" MTDTYPE="0" EDITORDER="5 " DISPID="0 " PARDECLTYP="3" PARPASSTYP="0" TYPTYPE="1" TYPE="INT4"/>
+   <exception CLSNAME="ZCL_SUP_DCN" CMPNAME="ADD_MESSAGE" SCONAME="COLS_MUST_BE_A_STRUCTURE" VERSION="1" LANGU="E" DESCRIPT="Cols can only be an ABAP structure (or a ref not checked)." MTDTYPE="0" EDITORDER="1 "/>
+   <source>method ADD_MESSAGE.
+
+  data l_op type string.
+  data l_id type string.
+  data l_rf type ref to data.
+  data datatype type string.
+  data datadesc type ref to CL_ABAP_TYPEDESCR.
+  data dcn_msg type zsup_dcn_messages.
+  field-symbols &lt;cols&gt; type any.
+
+  l_id = id.
+  if id is initial.
+* generate unique ID.
+    l_id = cl_system_uuid=&gt;IF_SYSTEM_UUID_STATIC~CREATE_UUID_C32( ).
+  endif.
+
+  l_op = op.
+  translate l_op to lower case.
+  case l_op.
+    when &apos;:upsert&apos; or &apos;insert&apos; or &apos;update&apos; or &apos;upsert&apos;.
+      l_op = &apos;:upsert&apos;.
+    when &apos;:delete&apos; or &apos;delete&apos; or &apos;del&apos;.
+      l_op = &apos;:delete&apos;.
+    when others. &quot; Could be custom mbo operations
+      l_op = op.
+  endcase.
+
+  datadesc = cl_abap_typedescr=&gt;DESCRIBE_BY_DATA( cols ).
+  if datadesc-&gt;kind eq cl_abap_typedescr=&gt;kind_ref.
+    &quot; Any data type can be sent this way, but SUP only expects flat structures.
+    &quot; Also, remember to manage references yourself in the calling program. No checks here.
+    l_rf = cols.
+  elseif datadesc-&gt;kind eq cl_abap_typedescr=&gt;kind_struct.
+    datatype = datadesc-&gt;absolute_name.
+    create data l_rf type (datatype).
+    assign l_rf-&gt;* to &lt;cols&gt;.
+    &lt;cols&gt; = cols.
+  else.
+    raise COLS_MUST_BE_A_STRUCTURE.
+  endif.
+
+* assign data
+  dcn_msg-id   = l_id.
+  dcn_msg-mbo  = mbo.
+  dcn_msg-op   = l_op.
+  dcn_msg-cols = l_rf.
+
+  append dcn_msg to me-&gt;dcn_request-messages.
+
+  return_code = sy-subrc.
+
+endmethod.</source>
+  </method>
+  <method CLSNAME="ZCL_SUP_DCN" CMPNAME="CALL_DCN" VERSION="1" LANGU="E" DESCRIPT="Call the SUP server" EXPOSURE="2" STATE="1" EDITORDER="5 " DISPID="0 " MTDTYPE="0" MTDDECLTYP="0" BCMTDCAT="00" BCMTDSYN="0">
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CALL_DCN" SCONAME="HTTP_RFC_DEST" VERSION="1" LANGU="E" DESCRIPT="Logical Destination (Specified in Function Call)" CMPTYPE="1" MTDTYPE="0" EDITORDER="1 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="RFCDEST"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CALL_DCN" SCONAME="DCN_HTTP_AUTH" VERSION="1" LANGU="E" DESCRIPT="Whether to use the HTTP Basic Auth Servlet or not" CMPTYPE="1" MTDTYPE="0" EDITORDER="2 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="XFELD" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CALL_DCN" SCONAME="HTTP_STATUS_CODE" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="3 " DISPID="0 " PARDECLTYP="1" PARPASSTYP="1" TYPTYPE="1" TYPE="I"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CALL_DCN" SCONAME="HTTP_STATUS_MESSAGE" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="4 " DISPID="0 " PARDECLTYP="1" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CALL_DCN" SCONAME="RESPONSE_TEXT" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="5 " DISPID="0 " PARDECLTYP="1" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CALL_DCN" SCONAME="DCN_RESPONSE" VERSION="1" LANGU="E" DESCRIPT="Tab of DCN Response" CMPTYPE="1" MTDTYPE="0" EDITORDER="6 " DISPID="0 " PARDECLTYP="1" PARPASSTYP="1" TYPTYPE="1" TYPE="ZSUP_DCN_RESPONSE_TAB"/>
+   <exception CLSNAME="ZCL_SUP_DCN" CMPNAME="CALL_DCN" SCONAME="ERROR_IN_HTTP_SEND_CALL" VERSION="1" LANGU="E" DESCRIPT="HTTP_SEND method raised an error" MTDTYPE="0" EDITORDER="1 "/>
+   <source>method CALL_DCN.
+
+  data dcn_json type string.
+  data content_type type string.
+
+  data conv type ref to CL_ABAP_CONV_OUT_CE.
+  data xpost_data type xstring.
+  data xlen type i.
+
+  data l_http_rfc_dest type RFCDEST.
+
+  if http_rfc_dest is initial.
+    l_http_rfc_dest = me-&gt;http_rfcdest.
+  else.
+    l_http_rfc_dest = http_rfc_dest.
+  endif.
+
+  dcn_json = me-&gt;prepare( ).
+
+**
+  if DCN_HTTP_AUTH eq &apos;X&apos;.
+* When calling DCN using the HttpAuthDCNServlet, the protocol interface changes:
+* The client does a POST request and puts ONLY the dcn_request JSON string
+* in the POST body in non encoded form.
+* The client passes the cmd, security, domain and package fields in the query string.
+* So we have to do some workarounds to make that work:
+
+* 1. Convert the json string encoding from utf-8 to iso-8859-1 (it seems that SUP defaults to that)
+*    and put the raw dcn_request JSON in the POST body.
+    conv = CL_ABAP_CONV_OUT_CE=&gt;create( encoding = &apos;1100&apos; ). &quot; ISO-8859-1
+    conv-&gt;convert( exporting data = dcn_json importing buffer = xpost_data len = xlen ).
+
+* 2. Remove dcn_request from form_fields (it is not needed here anymore...)
+    delete form_fields where name = &apos;dcn_request&apos;.
+
+* 3. Set content type to &apos;application/json&apos;, to be compliant...
+    content_type = &apos;application/json&apos;.
+  endif.
+**
+
+  CALL METHOD ZCL_SUP_DCN=&gt;HTTP_SEND
+    EXPORTING
+      METHOD                 = &apos;POST&apos;
+      HTTP_RFC_DEST          = L_HTTP_RFC_DEST
+      FORM_FIELDS            = me-&gt;form_fields
+      XPOST_DATA             = xpost_data
+      CONTENT_TYPE           = content_type
+    IMPORTING
+      HTTP_STATUS_CODE       = HTTP_STATUS_CODE
+      HTTP_STATUS_MESSAGE    = HTTP_STATUS_MESSAGE
+      RESPONSE_TEXT          = RESPONSE_TEXT
+    EXCEPTIONS
+      SEND_ERROR             = 1
+      RECEIVE_ERROR          = 2
+      ERROR_CREATE_BY_URL    = 3
+      ERROR_CREATE_BY_DEST   = 4
+      PLEASE_SET_DESTINATION = 5
+      others                 = 6.
+  IF SY-SUBRC &lt;&gt; 0.
+    raise ERROR_IN_HTTP_SEND_CALL.
+  ENDIF.
+
+
+  if HTTP_STATUS_CODE ne &apos;200&apos;.
+* Unexplicably, when there is an error, the json message comes in the http status message
+* and the response body has an unparseable error message in HTML format :(
+* So the logical mechanism:
+*&gt;&gt;&gt;    dcn_response = get_json_response( http_status_message ). &quot; is not going to work, as
+*&quot; the ICF APIs will truncate the &quot;Reason Phrase&quot; to the first 256 chars, which is by the way
+*&quot; correct, as clients don&apos;t have to use the reason phrase for anything (see RFC 2616).
+*&quot; Actually, the DCN shouldn&apos;t be using the Reason Phrase for notifying error messages at all.
+*&quot; And, even more, the HTTP status code shouldn&apos;t be 500, as SUP is handling here an application
+*&quot; related error and not an HTTP server error.
+***
+* As a crude workaround while Sybase corrects this (it is still uncorrected by 2.2), we get
+* the HTML response and try to extract the JSON response from it by using regular expressions:
+    data response_json type string.
+    data rwa type match_result.
+    find first occurrence of regex &apos;&lt;pre&gt;\s*\[(.*)\]&lt;\/pre&gt;&apos; in response_text results rwa.
+    if sy-subrc eq 0.
+      response_json = substring( val = response_text off = rwa-offset len = rwa-length ).
+      shift response_json left deleting leading &apos;&lt;pre&gt;&apos;.
+      shift response_json right deleting trailing &apos;&lt;/pre&gt;&apos;.
+      dcn_response = get_json_response( response_json ).
+    endif.
+** end workaround, hope it will be short lived.
+
+  else.
+    dcn_response = get_json_response( response_text ).
+  endif.
+
+endmethod.</source>
+  </method>
+  <method CLSNAME="ZCL_SUP_DCN" CMPNAME="CLEAR_MESSAGES" VERSION="1" LANGU="E" DESCRIPT="Clear messages" EXPOSURE="2" STATE="1" EDITORDER="9 " DISPID="0 " MTDTYPE="0" MTDDECLTYP="0" BCMTDCAT="00" BCMTDSYN="0">
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CLEAR_MESSAGES" SCONAME="RETURN_CODE" VERSION="1" LANGU="E" DESCRIPT="Natural number" CMPTYPE="1" MTDTYPE="0" EDITORDER="1 " DISPID="0 " PARDECLTYP="3" PARPASSTYP="0" TYPTYPE="1" TYPE="INT4"/>
+   <source>method CLEAR_MESSAGES.
+
+  clear me-&gt;dcn_request-messages.
+
+  return_code = sy-subrc.
+
+endmethod.</source>
+  </method>
+  <method CLSNAME="ZCL_SUP_DCN" CMPNAME="CONSTRUCTOR" VERSION="1" LANGU="E" DESCRIPT="CONSTRUCTOR" EXPOSURE="2" STATE="1" EDITORDER="1 " DISPID="0 " MTDTYPE="2" MTDDECLTYP="0" BCMTDCAT="00" BCMTDSYN="0">
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CONSTRUCTOR" SCONAME="PACKAGE" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="2" EDITORDER="1 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CONSTRUCTOR" SCONAME="CMD" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="2" EDITORDER="2 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING" PARVALUE="&apos;dcn&apos;"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CONSTRUCTOR" SCONAME="SECURITY" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="2" EDITORDER="3 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CONSTRUCTOR" SCONAME="USERNAME" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="2" EDITORDER="4 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CONSTRUCTOR" SCONAME="PASSWORD" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="2" EDITORDER="5 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CONSTRUCTOR" SCONAME="DOMAIN" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="2" EDITORDER="6 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING" PARVALUE="&apos;default&apos;"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CONSTRUCTOR" SCONAME="MESSAGES" VERSION="1" LANGU="E" DESCRIPT="Table of zsup_dcn_messages" CMPTYPE="1" MTDTYPE="2" EDITORDER="7 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="ZSUP_DCN_MESSAGES_TAB" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="CONSTRUCTOR" SCONAME="HTTP_RFC_DEST" VERSION="1" LANGU="E" DESCRIPT="Logical Destination (Specified in Function Call)" CMPTYPE="1" MTDTYPE="2" EDITORDER="8 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="RFCDEST" PAROPTIONL="X"/>
+   <source>method CONSTRUCTOR.
+
+dcnqs-cmd = cmd.
+dcnqs-package = package.
+dcnqs-security = security.
+dcnqs-username = username.
+dcnqs-password = password.
+dcnqs-domain = domain.
+
+*dcn_request-pkg = &apos;dummy&apos;.
+dcn_request-pkg = dcnqs-package. &quot; Currently unused
+dcn_request-messages = messages.
+
+http_rfcdest = http_rfc_dest.
+
+endmethod.</source>
+  </method>
+  <method CLSNAME="ZCL_SUP_DCN" CMPNAME="GET_JSON_RESPONSE" VERSION="1" LANGU="E" DESCRIPT="Parse JSON DCN response" EXPOSURE="2" STATE="1" EDITORDER="6 " DISPID="0 " MTDTYPE="0" MTDDECLTYP="0" BCMTDCAT="00" BCMTDSYN="0">
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="GET_JSON_RESPONSE" SCONAME="JSON" VERSION="1" LANGU="E" DESCRIPT="JSON text response" CMPTYPE="1" MTDTYPE="0" EDITORDER="1 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="GET_JSON_RESPONSE" SCONAME="DCN_RESPONSE" VERSION="1" LANGU="E" DESCRIPT="Tab of DCN Response" CMPTYPE="1" MTDTYPE="0" EDITORDER="2 " DISPID="0 " PARDECLTYP="3" PARPASSTYP="0" TYPTYPE="1" TYPE="ZSUP_DCN_RESPONSE_TAB"/>
+   <exception CLSNAME="ZCL_SUP_DCN" CMPNAME="GET_JSON_RESPONSE" SCONAME="JAVASCRIPT_ERROR" VERSION="1" LANGU="E" MTDTYPE="0" EDITORDER="1 "/>
+   <exception CLSNAME="ZCL_SUP_DCN" CMPNAME="GET_JSON_RESPONSE" SCONAME="JSON_FORMAT_ERROR" VERSION="1" LANGU="E" MTDTYPE="0" EDITORDER="2 "/>
+   <source>method GET_JSON_RESPONSE.
+
+  type-pools: abap, js.
+
+** If you have the ZCL_JSON_HANDLER class installed, you may want to use this:
+*  zcl_json_handler=&gt;json2abap( exporting json_string = json  changing abap_data = dcn_response ).
+*  exit.
+** Also try the built in JSON transformation if you are in releases 702SP6 or higher.
+
+  data wa_dcnresp type zsup_dcn_response.
+
+  data js_object type ref to cl_java_script.
+  data js_value type string.
+  data js_script type string.
+  data js_param_name type string.
+  data json_string type string.
+  data js_property_tab1 type    js_property_tab.
+  data js_property_tab2 type    js_property_tab.
+  data js_property type line of js_property_tab.
+
+  js_object = cl_java_script=&gt;create( ).
+  if json is initial. exit. endif. &quot; nothing to parse.
+  json_string = json.
+  js_object-&gt;bind( exporting name_obj = &apos;json&apos; name_prop = &apos;string&apos;    changing data = json_string ).
+
+
+* From RFC 4627:
+*
+*Security considerations:
+*
+*   Generally there are security issues with scripting languages.  JSON
+*   is a subset of JavaScript, but it is a safe subset that excludes
+*   assignment and invocation.
+*
+*   A JSON text can be safely passed into JavaScript&apos;s eval() function
+*   (which compiles and executes a string) if all the characters not
+*   enclosed in strings are in the set of characters that form JSON
+*   tokens.  This can be quickly determined in JavaScript with two
+*   regular expressions and calls to the test and replace methods.
+*
+*      var my_JSON_object = !(/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/.test(
+*             text.replace(/&quot;(\\.|[^&quot;\\])*&quot;/g, &apos;&apos;))) &amp;&amp;
+*         eval(&apos;(&apos; + text + &apos;)&apos;);
+
+  concatenate
+
+       &apos;var json_obj; &apos;
+       &apos;var json_text; &apos;
+
+       &apos;json_text = json.string;&apos;
+       &apos;json_obj = !(/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/.test( &apos;
+       &apos;       json_text.replace(/&quot;(\\.|[^&quot;\\])*&quot;/g, &apos;&apos;&apos;&apos;))) &amp;&amp; &apos;
+       &apos;    eval(&apos;&apos;(&apos;&apos; + json_text + &apos;&apos;)&apos;&apos;); &apos;
+
+      into js_script respecting blanks separated by xnl.
+
+  js_object-&gt;compile( script_name = &apos;json_parser&apos;  script = js_script ).
+  js_object-&gt;execute( script_name = &apos;json_parser&apos; ).
+
+  if js_object-&gt;last_error_message is not initial.
+    raise javascript_error.
+  endif.
+
+  js_property_tab1 = js_object-&gt;get_properties_scope_global( property_path = &apos;json_obj&apos; ).
+
+* read DCN response coming from json structure
+  loop at js_property_tab1 into js_property.
+
+    if js_property-kind eq &apos;O&apos;.
+
+        concatenate &apos;json_obj.&apos; js_property-name  into js_param_name.
+        js_property_tab2 = js_object-&gt;get_properties_scope_global( property_path = js_param_name ).
+        loop at js_property_tab2 into js_property.
+           case js_property-name.
+             when &apos;recordID&apos;.
+               wa_dcnresp-recordid      = js_property-value.
+             when &apos;success&apos;.
+               wa_dcnresp-success       = js_property-value.
+             when &apos;statusMessage&apos;.
+               wa_dcnresp-statusmessage = js_property-value.
+           endcase.
+        endloop.
+
+        append wa_dcnresp to dcn_response.
+        clear wa_dcnresp.
+
+    endif.
+
+  endloop.
+
+***
+endmethod.</source>
+  </method>
+  <method CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" VERSION="1" LANGU="E" DESCRIPT="Send HTTP request" EXPOSURE="2" STATE="1" EDITORDER="2 " DISPID="0 " MTDTYPE="0" MTDDECLTYP="1" BCMTDCAT="00" BCMTDSYN="0">
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="POST_DATA" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="1 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="0" TYPTYPE="1" TYPE="STRING" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="URL" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="2 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="0" TYPTYPE="1" TYPE="STRING" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="METHOD" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="3 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="0" TYPTYPE="1" TYPE="STRING" PARVALUE="&apos;GET&apos;"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="HTTP_RFC_DEST" VERSION="1" LANGU="E" DESCRIPT="Logical Destination (Specified in Function Call)" CMPTYPE="1" MTDTYPE="0" EDITORDER="4 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="0" TYPTYPE="1" TYPE="RFCDEST" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="FORM_FIELDS" VERSION="1" LANGU="E" DESCRIPT="HTTP Framework (iHTTP) Table Name/Value Pairs" CMPTYPE="1" MTDTYPE="0" EDITORDER="5 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="0" TYPTYPE="1" TYPE="TIHTTPNVP" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="XPOST_DATA" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="6 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="0" TYPTYPE="1" TYPE="XSTRING" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="CONTENT_TYPE" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="7 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="0" TYPTYPE="1" TYPE="STRING" PAROPTIONL="X"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="HTTP_STATUS_CODE" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="8 " DISPID="0 " PARDECLTYP="1" PARPASSTYP="0" TYPTYPE="1" TYPE="I"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="HTTP_STATUS_MESSAGE" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="9 " DISPID="0 " PARDECLTYP="1" PARPASSTYP="0" TYPTYPE="1" TYPE="STRING"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="RESPONSE_TEXT" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="10 " DISPID="0 " PARDECLTYP="1" PARPASSTYP="0" TYPTYPE="1" TYPE="STRING"/>
+   <exception CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="SEND_ERROR" VERSION="1" LANGU="E" DESCRIPT="Cannot send HTTP request" MTDTYPE="0" EDITORDER="1 "/>
+   <exception CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="RECEIVE_ERROR" VERSION="1" LANGU="E" DESCRIPT="Error receiving HTTP request" MTDTYPE="0" EDITORDER="2 "/>
+   <exception CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="ERROR_CREATE_BY_URL" VERSION="1" LANGU="E" DESCRIPT="Error creating HTTP client with URL" MTDTYPE="0" EDITORDER="3 "/>
+   <exception CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="ERROR_CREATE_BY_DEST" VERSION="1" LANGU="E" DESCRIPT="Error creating HTTP client with RFC destination" MTDTYPE="0" EDITORDER="4 "/>
+   <exception CLSNAME="ZCL_SUP_DCN" CMPNAME="HTTP_SEND" SCONAME="PLEASE_SET_DESTINATION" VERSION="1" LANGU="E" DESCRIPT="Please, indicate a destination in form of URL or RFC-HTTP" MTDTYPE="0" EDITORDER="5 "/>
+   <source>method HTTP_SEND.
+
+  data client type ref to if_http_client.
+  data destination(255) type c.
+  data errcode type sysubrc.
+  data errmesg type string.
+
+  if http_rfc_dest is not initial.
+
+    destination = http_rfc_dest.
+
+    CALL METHOD cl_http_client=&gt;create_by_destination
+      EXPORTING
+        destination              = destination
+      IMPORTING
+        client                   = client
+      EXCEPTIONS
+        argument_not_found       = 1
+        destination_not_found    = 2
+        destination_no_authority = 3
+        plugin_not_active        = 4
+        internal_error           = 5
+        others                   = 6.
+    if sy-subrc &lt;&gt; 0.
+      raise error_create_by_dest.
+    endif.
+
+  elseif url is not initial.
+
+    CALL METHOD cl_http_client=&gt;create_by_url
+      EXPORTING
+        url                = url
+*       PROXY_HOST         =
+*       PROXY_SERVICE      =
+*       SSL_ID             =
+*       SAP_USERNAME       =
+*       SAP_CLIENT         =
+      IMPORTING
+        client             = client
+      EXCEPTIONS
+        argument_not_found = 1
+        plugin_not_active  = 2
+        internal_error     = 3
+        others             = 4.
+    if sy-subrc &lt;&gt; 0.
+      raise error_create_by_url.
+    endif.
+
+  else.
+
+    raise please_set_destination.
+
+  endif.
+
+* client-&gt;request-&gt;set_header_field( name = &apos;~request_method&apos;  value = method ).  &quot;Use this in older releases, like 6.20
+  client-&gt;request-&gt;set_method( method ).
+
+  if form_fields is not initial.
+    client-&gt;request-&gt;set_form_fields( form_fields ).
+  endif.
+
+  if method EQ &apos;POST&apos; and ( post_data IS NOT INITIAL OR xpost_data is not initial ).
+    if post_data is not initial.
+      client-&gt;request-&gt;set_cdata( post_data ).
+    elseif xpost_data is not initial.
+      client-&gt;request-&gt;set_data( xpost_data ).
+    endif.
+    if content_type is not initial.
+      client-&gt;request-&gt;set_content_type( content_type ).
+    endif.
+  endif.
+
+
+  client-&gt;send( exceptions  HTTP_COMMUNICATION_FAILURE = 1
+                            HTTP_INVALID_STATE         = 2
+                            HTTP_PROCESSING_FAILED     = 3
+                            HTTP_INVALID_TIMEOUT       = 4
+                            others                     = 5 ).
+  client-&gt;get_last_error( importing code = errcode message = errmesg ).
+
+  if errcode ne 0.
+    raise send_error.
+  endif.
+
+  client-&gt;receive( exceptions  HTTP_COMMUNICATION_FAILURE = 1
+                               HTTP_INVALID_STATE         = 2
+                               HTTP_PROCESSING_FAILED     = 3
+                               others                     = 4 ).
+  client-&gt;get_last_error( importing code = errcode message = errmesg ).
+
+  if errcode ne 0.
+    raise receive_error.
+  endif.
+
+  client-&gt;response-&gt;get_status( importing code = http_status_code reason = http_status_message ).
+  response_text = client-&gt;response-&gt;get_cdata( ).
+
+  call method client-&gt;close.
+
+endmethod.</source>
+  </method>
+  <method CLSNAME="ZCL_SUP_DCN" CMPNAME="PREPARE" VERSION="1" LANGU="E" DESCRIPT="Prepare JSON and form fields for the call" EXPOSURE="2" STATE="1" EDITORDER="4 " DISPID="0 " MTDTYPE="0" MTDDECLTYP="0" BCMTDCAT="00" BCMTDSYN="0">
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="PREPARE" SCONAME="JSON_DCN_REQ" VERSION="1" LANGU="E" CMPTYPE="1" MTDTYPE="0" EDITORDER="1 " DISPID="0 " PARDECLTYP="3" PARPASSTYP="0" TYPTYPE="1" TYPE="STRING"/>
+   <source>method PREPARE.
+
+  data nvp type ihttpnvp.
+
+  clear form_fields.
+
+  nvp-name = &apos;cmd&apos;.
+  nvp-value = dcnqs-cmd.
+  append nvp to form_fields.
+  clear nvp.
+
+  if dcnqs-security is not initial.
+    nvp-name = &apos;security&apos;.
+    nvp-value = dcnqs-security.
+    append nvp to form_fields.
+    clear nvp.
+  endif.
+
+  if dcnqs-username is not initial.
+    nvp-name = &apos;username&apos;.
+    nvp-value = dcnqs-username.
+    append nvp to form_fields.
+    clear nvp.
+
+    nvp-name = &apos;password&apos;.
+    nvp-value = dcnqs-password.
+    append nvp to form_fields.
+    clear nvp.
+  endif.
+
+  nvp-name = &apos;domain&apos;.
+  nvp-value = dcnqs-domain.
+  append nvp to form_fields.
+  clear nvp.
+
+  nvp-name = &apos;package&apos;.
+  nvp-value = dcnqs-package.
+  append nvp to form_fields.
+  clear nvp.
+
+****************************
+* Generate the JSON string *
+****************************
+  JSON_DCN_REQ = abap2json( dcn_request ).
+  dcnqs-dcn_request   = JSON_DCN_REQ.
+
+  nvp-name = &apos;dcn_request&apos;.
+  nvp-value = dcnqs-dcn_request.
+  append nvp to form_fields.
+  clear nvp.
+
+endmethod.</source>
+  </method>
+  <method CLSNAME="ZCL_SUP_DCN" CMPNAME="SET_MESSAGES" VERSION="1" LANGU="E" DESCRIPT="Set the whole messages table" EXPOSURE="2" STATE="1" EDITORDER="10 " DISPID="0 " MTDTYPE="0" MTDDECLTYP="0" BCMTDCAT="00" BCMTDSYN="0">
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="SET_MESSAGES" SCONAME="MESSAGES" VERSION="1" LANGU="E" DESCRIPT="Table of zsup_dcn_messages" CMPTYPE="1" MTDTYPE="0" EDITORDER="1 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="ZSUP_DCN_MESSAGES_TAB"/>
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="SET_MESSAGES" SCONAME="RETURN_CODE" VERSION="1" LANGU="E" DESCRIPT="Natural number" CMPTYPE="1" MTDTYPE="0" EDITORDER="2 " DISPID="0 " PARDECLTYP="3" PARPASSTYP="0" TYPTYPE="1" TYPE="INT4"/>
+   <source>method SET_MESSAGES.
+
+  clear_messages( ).
+
+  me-&gt;dcn_request-messages = messages.
+
+  return_code = sy-subrc.
+
+endmethod.</source>
+  </method>
+  <method CLSNAME="ZCL_SUP_DCN" CMPNAME="SET_PACKAGE" VERSION="1" LANGU="E" DESCRIPT="Set SUP Package (change it or set it outside constructor)" EXPOSURE="2" STATE="1" EDITORDER="8 " DISPID="0 " MTDTYPE="0" MTDDECLTYP="0" BCMTDCAT="00" BCMTDSYN="0">
+   <parameter CLSNAME="ZCL_SUP_DCN" CMPNAME="SET_PACKAGE" SCONAME="PACKAGE" VERSION="1" LANGU="E" DESCRIPT="SUP Package Name" CMPTYPE="1" MTDTYPE="0" EDITORDER="1 " DISPID="0 " PARDECLTYP="0" PARPASSTYP="1" TYPTYPE="1" TYPE="STRING"/>
+   <source>method SET_PACKAGE.
+
+dcnqs-package   = package.
+dcn_request-pkg = dcnqs-package. &quot; Currently unused
+
+endmethod.</source>
+  </method>
+ </CLAS>
+ <PROG NAME="ZSUP_DCN_TEST" VARCL="X" SUBC="1" RSTAT="T" RMAND="000" RLOAD="E" FIXPT="X" UCCHECK="X">
+  <textPool>
+   <language SPRAS="E">
+    <textElement ID="R" ENTRY="Test program 002" LENGTH="16 "/>
+   </language>
+  </textPool>
+  <source>*&amp;---------------------------------------------------------------------*
+*&amp; Report  ZSUP_DCN_TEST
+*&amp;
+*&amp;---------------------------------------------------------------------*
+*&amp;
+*&amp; Test report for showing usage of the ZCL_SUP_DCN class.
+*&amp; For more info read:
+*&amp; http://scn.sap.com/community/developer-center/mobility-platform/blog/2012/06/11/calling-the-sup-data-change-notification-from-abap
+*&amp;---------------------------------------------------------------------*
+
+report  zsup_dcn_test line-size 1023 no standard page heading.
+
+types:
+begin of mbotype,
+  username type string,
+  firstname type string,
+  lastname type string,
+  fullname type string,
+end of mbotype.
+
+data:
+   mbocols type mbotype,
+   http_status_code type I,
+   http_status_message type string,
+   response_text type string,
+   wa_tnvp type line of tihttpnvp,
+   dcn_response type zsup_dcn_response_tab,
+   wa_dcnresp type line of zsup_dcn_response_tab,
+   sup_dcn type ref to zcl_sup_dcn.
+
+
+CREATE OBJECT SUP_DCN
+  EXPORTING
+   PACKAGE  = &apos;colomer01:1.0&apos;
+*   CMD      = &apos;dcn&apos;
+*   SECURITY = &apos;default&apos;
+*   USERNAME = &apos;supAdmin&apos;
+*   PASSWORD = &apos;s3pAdmin&apos;
+*   DOMAIN   = &apos;default&apos;
+*   MESSAGES = t_messages
+.
+
+*mbocols-username = &apos;jrubi&apos;.
+*mbocols-firstname = &apos;Jose&apos;.
+*mbocols-lastname = &apos;Rubio&apos;.
+*mbocols-fullname = &apos;Jose Rubí&apos;.
+*
+*sup_dcn-&gt;add_message( id = &apos;1&apos; mbo = &apos;UserData&apos; op = &apos;upsert&apos; cols = mbocols ).
+
+clear mbocols.
+mbocols-username = &apos;arodriguez&apos;.
+mbocols-firstname = &apos;Antonio&apos;.
+mbocols-lastname = &apos;Rodriguez&apos;.
+mbocols-fullname = &apos;Antonio Rodríguez&apos;.
+
+* If you omit the ID, the method will generate a UUID automatically
+sup_dcn-&gt;add_message( id = &apos;1&apos; mbo = &apos;UserData&apos; op = &apos;upsert&apos; cols = mbocols ).
+
+clear mbocols.
+mbocols-username = &apos;tmaza&apos;.
+mbocols-firstname = &apos;Tomas&apos;.
+mbocols-lastname = &apos;Maza&apos;.
+mbocols-fullname = &apos;Tomás Maza&apos;.
+
+*sup_dcn-&gt;add_message(  mbo = &apos;UserData&apos; op = &apos;fallar&apos; cols = mbocols ).
+sup_dcn-&gt;add_message(  mbo = &apos;UserData&apos; op = &apos;insert&apos; cols = mbocols ).
+
+clear mbocols.
+mbocols-username = &apos;jrubi&apos;. &quot; Set MBO key to delete (logically only)
+
+sup_dcn-&gt;add_message(  mbo = &apos;UserData_falla&apos; op = &apos;del&apos; cols = mbocols ).
+*sup_dcn-&gt;add_message(  mbo = &apos;UserData&apos; op = &apos;del&apos; cols = mbocols ).
+
+
+
+*break-point id z_dcn.
+*sup_dcn-&gt;prepare( ).
+
+
+write: / &apos;Calling server:&apos;.
+uline.
+
+CALL METHOD SUP_DCN-&gt;CALL_DCN
+  EXPORTING
+*    HTTP_RFC_DEST           = &apos;SUPES01&apos;
+    HTTP_RFC_DEST           = &apos;SUPES01_BASIC&apos;
+*    HTTP_RFC_DEST           = &apos;SPL_ECHO&apos;
+    DCN_HTTP_AUTH           = &apos;X&apos;  &quot;Set this to true if you&apos;re using the HttpAuthDCNServlet
+  IMPORTING
+    HTTP_STATUS_CODE        = http_status_code
+    HTTP_STATUS_MESSAGE     = http_status_message
+    RESPONSE_TEXT           = response_text
+    DCN_RESPONSE            = dcn_response
+  EXCEPTIONS
+    ERROR_IN_HTTP_SEND_CALL = 1.
+
+if sy-subrc ne 0.
+
+  write &apos;Error en la llamada al DCN&apos;.
+
+else.
+*  break-point id z_dcn.
+
+* Display results:
+  format color col_heading.
+  write: / &apos;Form Fields:&apos;.
+  format color col_key.
+  loop at sup_dcn-&gt;form_fields into wa_tnvp.
+    write: / wa_tnvp-name, wa_tnvp-value.
+  endloop.
+  uline.
+
+  format color col_normal.
+  write: / &apos;HTTP code&apos;, http_status_code.
+  write: / &apos;HTTP message&apos;, http_status_message.
+  write: / &apos;Response body:&apos;.
+  write response_text.
+  uline.
+
+  format color col_heading.
+  write: (32) &apos;recordID&apos;,  &apos;success&apos;,  &apos;statusMessage&apos;.
+  format color col_key.
+  loop at dcn_response into wa_dcnresp.
+    write: / wa_dcnresp-recordid under &apos;recordID&apos;, wa_dcnresp-success under &apos;success&apos;, wa_dcnresp-statusMessage under &apos;statusMessage&apos;.
+  endloop.
+
+
+endif.</source>
+ </PROG>
+ <PROG NAME="ZSUP_DCN_TEST_OLD" VARCL="X" SUBC="1" RSTAT="T" RMAND="000" RLOAD="E" FIXPT="X" UCCHECK="X">
+  <textPool>
+   <language SPRAS="E">
+    <textElement ID="R" ENTRY="Test program 002" LENGTH="16 "/>
+   </language>
+  </textPool>
+  <source>*&amp;---------------------------------------------------------------------*
+*&amp; Report  ZSUP_DCN_TEST_OLD
+*&amp;
+*&amp;---------------------------------------------------------------------*
+*&amp;
+*&amp; Test report for showing usage of the ZCL_SUP_DCN class.
+*&amp; For more info read:
+*&amp; http://scn.sap.com/community/developer-center/mobility-platform/blog/2012/06/11/calling-the-sup-data-change-notification-from-abap
+*&amp; This is the version that directly fills the t_messages table.
+*&amp;---------------------------------------------------------------------*
+
+report  zsup_dcn_test_old line-size 1023 no standard page heading.
+
+types:
+begin of mbotype,
+  username type string,
+  firstname type string,
+  lastname type string,
+  fullname type string,
+end of mbotype.
+
+field-symbols &lt;fs_mymbo&gt; type mbotype.
+field-symbols &lt;fs_msg&gt; type line of zsup_dcn_messages_tab.
+data http_status_code type I.
+data http_status_message type string.
+data response_text type string.
+
+data json_string type string.
+data tnvp type tihttpnvp.
+data wa_tnvp type line of tihttpnvp.
+
+data t_messages type zsup_dcn_messages_tab.
+data dcn_msg type zsup_dcn_messages.
+
+data dcn_req type zsup_dcn_request.
+data dcn_response type zsup_dcn_response_tab.
+data wa_dcnresp type line of zsup_dcn_response_tab.
+
+data mymbo type mbotype.
+
+data sup_dcn type ref to zcl_sup_dcn.
+
+create data dcn_msg-cols type mbotype.
+
+dcn_msg-id = &apos;1&apos;.
+dcn_msg-mbo = &apos;UserData&apos;.
+dcn_msg-op = &apos;:upsert&apos;.   &quot; or &apos;:delete&apos;.
+append dcn_msg to t_messages.
+read table t_messages index sy-tabix assigning &lt;fs_msg&gt;.
+create data &lt;fs_msg&gt;-cols type mbotype.
+assign &lt;fs_msg&gt;-cols-&gt;* to &lt;fs_mymbo&gt;.
+&lt;fs_mymbo&gt;-username = &apos;jrubi&apos;.
+&lt;fs_mymbo&gt;-firstname = &apos;Jose&apos;.
+&lt;fs_mymbo&gt;-lastname = &apos;Rubio&apos;.
+&lt;fs_mymbo&gt;-fullname = &apos;Jose Rubí&apos;.
+unassign &lt;fs_msg&gt;.
+unassign &lt;fs_mymbo&gt;.
+clear dcn_msg.
+
+dcn_msg-id = &apos;2&apos;.
+dcn_msg-mbo = &apos;UserData&apos;.
+dcn_msg-op = &apos;:upsert&apos;.   &quot; or &apos;:delete&apos;.
+append dcn_msg to t_messages.
+read table t_messages index sy-tabix assigning &lt;fs_msg&gt;.
+create data &lt;fs_msg&gt;-cols type mbotype.
+assign &lt;fs_msg&gt;-cols-&gt;* to &lt;fs_mymbo&gt;.
+&lt;fs_mymbo&gt;-username = &apos;tmaza&apos;.
+&lt;fs_mymbo&gt;-firstname = &apos;Tomas&apos;.
+&lt;fs_mymbo&gt;-lastname = &apos;Maza&apos;.
+&lt;fs_mymbo&gt;-fullname = &apos;Tomás Maza&apos;.
+unassign &lt;fs_msg&gt;.
+unassign &lt;fs_mymbo&gt;.
+clear dcn_msg.
+
+dcn_msg-id = &apos;3&apos;.
+dcn_msg-mbo = &apos;UserData&apos;.
+dcn_msg-op = &apos;:upsert&apos;.   &quot; or &apos;:delete&apos;.
+append dcn_msg to t_messages.
+read table t_messages index sy-tabix assigning &lt;fs_msg&gt;.
+create data &lt;fs_msg&gt;-cols type mbotype.
+assign &lt;fs_msg&gt;-cols-&gt;* to &lt;fs_mymbo&gt;.
+&lt;fs_mymbo&gt;-username = &apos;arodriguez&apos;.
+&lt;fs_mymbo&gt;-firstname = &apos;Antonio&apos;.
+&lt;fs_mymbo&gt;-lastname = &apos;Rodriguez&apos;.
+&lt;fs_mymbo&gt;-fullname = &apos;Antonio Rodríguez&apos;.
+unassign &lt;fs_msg&gt;.
+unassign &lt;fs_mymbo&gt;.
+clear dcn_msg.
+
+*dcn_msg-id = &apos;4&apos;.
+*dcn_msg-mbo = &apos;UserData_fallo&apos;.
+*dcn_msg-op = &apos;:delete&apos;.   &quot; or &apos;:delete&apos;.
+*append dcn_msg to t_messages.
+*read table t_messages index sy-tabix assigning &lt;fs_msg&gt;.
+*create data &lt;fs_msg&gt;-cols type mbotype.
+*assign &lt;fs_msg&gt;-cols-&gt;* to &lt;fs_mymbo&gt;.
+*&lt;fs_mymbo&gt;-username = &apos;mikel&apos;.
+*unassign &lt;fs_msg&gt;.
+*unassign &lt;fs_mymbo&gt;.
+*clear dcn_msg.
+*
+
+*break-point id z_dcn.
+
+
+
+
+CREATE OBJECT SUP_DCN
+  EXPORTING
+   PACKAGE  = &apos;colomer01:1.0&apos;
+   CMD      = &apos;dcn&apos;
+*   SECURITY = &apos;default&apos;
+   USERNAME = &apos;supAdmin&apos;
+   PASSWORD = &apos;s3pAdmin&apos;
+*   DOMAIN   = &apos;default&apos;
+   MESSAGES = t_messages.
+
+write: / &apos;Calling server:&apos;.
+uline.
+CALL METHOD SUP_DCN-&gt;CALL_DCN
+  EXPORTING
+    HTTP_RFC_DEST           = &apos;SUPES01&apos;
+*    HTTP_RFC_DEST           = &apos;SUPES01_BASIC&apos;
+*    HTTP_RFC_DEST           = &apos;SPL_ECHO&apos;
+*    DCN_HTTP_AUTH           = &apos;X&apos;  &quot;Set this to true if you&apos;re using the HttpAuthDCNServlet
+  IMPORTING
+    HTTP_STATUS_CODE        = http_status_code
+    HTTP_STATUS_MESSAGE     = http_status_message
+    RESPONSE_TEXT           = response_text
+    DCN_RESPONSE            = dcn_response
+  EXCEPTIONS
+    ERROR_IN_HTTP_SEND_CALL = 1.
+
+if sy-subrc ne 0.
+
+  write &apos;Error en la llamada al DCN&apos;.
+
+else.
+*  break-point id z_dcn.
+
+* Display results:
+  format color col_heading.
+  write: / &apos;Form Fields:&apos;.
+  format color col_key.
+  loop at sup_dcn-&gt;form_fields into wa_tnvp.
+    write: / wa_tnvp-name, wa_tnvp-value.
+  endloop.
+  uline.
+
+  format color col_normal.
+  write: / &apos;HTTP code&apos;, http_status_code.
+  write: / &apos;HTTP message&apos;, http_status_message.
+  write: / &apos;Response body:&apos;.
+  write response_text.
+  uline.
+
+  format color col_heading.
+  write: (32) &apos;recordID&apos;,  &apos;success&apos;,  &apos;statusMessage&apos;.
+  format color col_key.
+  loop at dcn_response into wa_dcnresp.
+    write: / wa_dcnresp-recordid under &apos;recordID&apos;, wa_dcnresp-success under &apos;success&apos;, wa_dcnresp-statusMessage under &apos;statusMessage&apos;.
+  endloop.
+
+
+endif.</source>
+ </PROG>
+ <PROG NAME="Z_DCN_SEND_BOOKINGS" VARCL="X" SUBC="1" RMAND="001" RLOAD="E" FIXPT="X" UCCHECK="X">
+  <textPool>
+   <language SPRAS="E">
+    <textElement ID="R" ENTRY="Send Bookings to SUP/SMP via DCN" LENGTH="32 "/>
+    <textElement ID="S" KEY="AIRLINE" ENTRY="        Airline" LENGTH="15 "/>
+    <textElement ID="S" KEY="BK_DATE" ENTRY="        Booking date" LENGTH="20 "/>
+    <textElement ID="S" KEY="C_NUMBER" ENTRY="        Customer number" LENGTH="23 "/>
+    <textElement ID="S" KEY="FL_DATE" ENTRY="        Flight date" LENGTH="19 "/>
+    <textElement ID="S" KEY="MAX_ROWS" ENTRY="D       ." LENGTH="9 "/>
+    <textElement ID="S" KEY="T_AGENCY" ENTRY="        Travel Agency" LENGTH="21 "/>
+   </language>
+  </textPool>
+  <source>*&amp;---------------------------------------------------------------------*
+*&amp; Report  Z_DCN_SEND_BOOKINGS
+*&amp;
+*&amp;---------------------------------------------------------------------*
+*&amp;
+*&amp; Test report for showing usage of the ZCL_SUP_DCN class.
+*&amp; For more info read:
+*&amp; http://scn.sap.com/community/developer-center/mobility-platform/blog/2012/06/11/calling-the-sup-data-change-notification-from-abap
+*&amp;
+*&amp;---------------------------------------------------------------------*
+
+REPORT  Z_DCN_SEND_BOOKINGS line-size 1023 no standard page heading.
+
+data:
+  http_status_code type I,
+  http_status_message type string,
+  response_text type string,
+  wa_tnvp type line of tihttpnvp,
+  dcn_response type zsup_dcn_response_tab,
+  wa_dcnresp type line of zsup_dcn_response_tab,
+  sup_dcn type ref to zcl_sup_dcn,
+  t_bookings type table of BAPISBODAT,
+  msgidx type i,
+  idxstr type string,
+  nlines type i.
+
+*data wa_booking type BAPISBODAT.
+field-symbols &lt;fs_booking&gt; type BAPISBODAT.
+
+parameters:
+  airline like BAPISBOKEY-AIRLINEID,
+  t_agency like BAPISBODAT-AGENCYNUM,
+  c_number like BAPISCUKEY-CUSTOMERID,
+  max_rows like BAPISFLAUX-BAPIMAXROW.
+
+select-options fl_date for &lt;fs_booking&gt;-flightdate.
+select-options bk_date for &lt;fs_booking&gt;-bookdate.
+
+
+CALL FUNCTION &apos;BAPI_FLBOOKING_GETLIST&apos;
+  EXPORTING
+    AIRLINE            = airline
+    TRAVEL_AGENCY      = t_agency
+    CUSTOMER_NUMBER    = c_number
+    MAX_ROWS           = max_rows
+  TABLES
+    FLIGHT_DATE_RANGE  = fl_date
+    BOOKING_DATE_RANGE = bk_date
+*   EXTENSION_IN       =
+    BOOKING_LIST       = t_bookings
+*   EXTENSION_OUT      =
+*   RETURN             =
+  .
+
+*break-point id z_dcn.
+
+CREATE OBJECT SUP_DCN
+  EXPORTING
+*    PACKAGE = &apos;flightbooking:1.0&apos;
+    PACKAGE  = &apos;sp:1.0&apos;
+*   CMD      = &apos;dcn&apos;
+*   SECURITY = &apos;default&apos;
+*   USERNAME = &apos;supAdmin&apos;
+*   PASSWORD = &apos;s3pAdmin&apos;
+*   DOMAIN   = &apos;default&apos;
+*   MESSAGES = t_messages.
+.
+
+loop at t_bookings assigning &lt;fs_booking&gt;.
+  add 1 to msgidx.
+  idxstr = msgidx.
+  sup_dcn-&gt;add_message( id = idxstr op = &apos;upsert&apos; mbo = &apos;Bookings&apos; cols = &lt;fs_booking&gt; ).
+*  sup_dcn-&gt;add_message(  op = &apos;upsert&apos; mbo = &apos;Bookings&apos; cols = &lt;fs_booking&gt; ).
+endloop.
+
+*break-point id z_dcn.
+
+
+  write: / &apos;Calling DCN server:&apos;.
+  uline.
+
+  CALL METHOD SUP_DCN-&gt;CALL_DCN
+    EXPORTING
+*     HTTP_RFC_DEST           = &apos;SMPTUTORIALS&apos;
+*     HTTP_RFC_DEST           = &apos;SMPTUTORIALS_BASIC&apos;
+      HTTP_RFC_DEST           = &apos;SUPES01_BASIC&apos;
+*     HTTP_RFC_DEST           = &apos;SPL_ECHO&apos;
+      DCN_HTTP_AUTH           = &apos;X&apos;  &quot;Set this to true if you&apos;re using the HttpAuthDCNServlet
+    IMPORTING
+      HTTP_STATUS_CODE        = http_status_code
+      HTTP_STATUS_MESSAGE     = http_status_message
+      RESPONSE_TEXT           = response_text
+      DCN_RESPONSE            = dcn_response
+    EXCEPTIONS
+      ERROR_IN_HTTP_SEND_CALL = 1.
+
+  if sy-subrc ne 0.
+
+    write &apos;Error en la llamada al DCN&apos;.
+
+  else.
+*  break-point id z_dcn.
+
+* Display results:
+    format color col_heading.
+    write: / &apos;Form Fields:&apos;.
+    format color col_key.
+    loop at sup_dcn-&gt;form_fields into wa_tnvp.
+      write: / wa_tnvp-name, wa_tnvp-value.
+    endloop.
+    uline.
+
+    format color col_normal.
+    write: / &apos;HTTP code&apos;, http_status_code.
+    write: / &apos;HTTP message&apos;, http_status_message.
+    write: / &apos;Response body:&apos;.
+    write response_text.
+    uline.
+
+    if http_status_code eq 200.
+      nlines = lines( dcn_response ).
+      write: / nlines, &apos; lines sent to SUP successfully.&apos;.
+      uline.
+    endif.
+
+    format color col_heading.
+    write: (32) &apos;recordID&apos;,  &apos;success&apos;,  &apos;statusMessage&apos;.
+    format color col_key.
+    loop at dcn_response into wa_dcnresp.
+      write: / wa_dcnresp-recordid under &apos;recordID&apos;, wa_dcnresp-success under &apos;success&apos;, wa_dcnresp-statusMessage under &apos;statusMessage&apos;.
+    endloop.
+
+
+  endif.</source>
+ </PROG>
+ <TABL TABNAME="ZSUP_DCN_MESSAGES" DDLANGUAGE="E" TABCLASS="INTTAB" DATMIN="0000000000" DATMAX="0000000000" DATAVG="0000000000" DDTEXT="SUP DCN Messages" AUTHCLASS="00" PROZPUFF="000" EXCLASS="0">
+  <dd09l AS4VERS="0000" SCHFELDANZ="000"/>
+  <dd03p TABNAME="ZSUP_DCN_MESSAGES" FIELDNAME="ID" DDLANGUAGE="E" POSITION="0001" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_MESSAGES" FIELDNAME="MBO" DDLANGUAGE="E" POSITION="0002" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_MESSAGES" FIELDNAME="OP" DDLANGUAGE="E" POSITION="0003" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_MESSAGES" FIELDNAME="COLS" POSITION="0004" ROLLNAME="DATA" ADMINFIELD="0" INTLEN="000000" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="REF" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  REF RD" MASKLEN="0000" DEPTH="00" COMPTYPE="R" REFTYPE="D" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+ </TABL>
+ <TABL TABNAME="ZSUP_DCN_QS" DDLANGUAGE="E" TABCLASS="INTTAB" DATMIN="0000000000" DATMAX="0000000000" DATAVG="0000000000" DDTEXT="SUP DCN Query String" AUTHCLASS="00" PROZPUFF="000" EXCLASS="0">
+  <dd09l AS4VERS="0000" SCHFELDANZ="000"/>
+  <dd03p TABNAME="ZSUP_DCN_QS" FIELDNAME="CMD" DDLANGUAGE="E" POSITION="0001" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_QS" FIELDNAME="SECURITY" DDLANGUAGE="E" POSITION="0002" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_QS" FIELDNAME="USERNAME" DDLANGUAGE="E" POSITION="0003" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_QS" FIELDNAME="PASSWORD" DDLANGUAGE="E" POSITION="0004" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_QS" FIELDNAME="DOMAIN" DDLANGUAGE="E" POSITION="0005" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_QS" FIELDNAME="DCN_REQUEST" DDLANGUAGE="E" POSITION="0006" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_QS" FIELDNAME="DCN_FILTER" DDLANGUAGE="E" POSITION="0007" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_QS" FIELDNAME="PACKAGE" DDLANGUAGE="E" POSITION="0008" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+ </TABL>
+ <TABL TABNAME="ZSUP_DCN_REQUEST" DDLANGUAGE="E" TABCLASS="INTTAB" DATMIN="0000000000" DATMAX="0000000000" DATAVG="0000000000" DDTEXT="DCN Request for JSON message" AUTHCLASS="00" PROZPUFF="000" EXCLASS="0">
+  <dd09l AS4VERS="0000" SCHFELDANZ="000"/>
+  <dd03p TABNAME="ZSUP_DCN_REQUEST" FIELDNAME="PKG" DDLANGUAGE="E" POSITION="0001" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DDTEXT='Ignored, must be in the package in the query string. &quot;dummy&quot;' DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_REQUEST" FIELDNAME="MESSAGES" DDLANGUAGE="E" POSITION="0002" ROLLNAME="ZSUP_DCN_MESSAGES_TAB" ADMINFIELD="0" INTLEN="000000" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="TTYP" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  TTYPL" MASKLEN="0000" DDTEXT="Table of zsup_dcn_messages" DEPTH="00" COMPTYPE="L" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+ </TABL>
+ <TABL TABNAME="ZSUP_DCN_RESPONSE" DDLANGUAGE="E" TABCLASS="INTTAB" DATMIN="0000000000" DATMAX="0000000000" DATAVG="0000000000" DDTEXT="DCN Response" AUTHCLASS="00" PROZPUFF="000" EXCLASS="0">
+  <dd09l AS4VERS="0000" SCHFELDANZ="000"/>
+  <dd03p TABNAME="ZSUP_DCN_RESPONSE" FIELDNAME="RECORDID" DDLANGUAGE="E" POSITION="0001" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_RESPONSE" FIELDNAME="SUCCESS" DDLANGUAGE="E" POSITION="0002" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+  <dd03p TABNAME="ZSUP_DCN_RESPONSE" FIELDNAME="STATUSMESSAGE" DDLANGUAGE="E" POSITION="0003" ADMINFIELD="0" INTTYPE="g" INTLEN="000008" ROUTPUTLEN="000000" HEADLEN="00" SCRLEN1="00" SCRLEN2="00" SCRLEN3="00" DATATYPE="STRG" LENG="000000" OUTPUTLEN="000000" DECIMALS="000000" MASK="  STRG" MASKLEN="0000" DEPTH="00" EXCLASS="0" DBPOSITION="0000" OUTPUTSTYLE="00" STRORLOCPOS="00"/>
+ </TABL>
+ <TTYP TYPENAME="ZSUP_DCN_MESSAGES_TAB" DDLANGUAGE="E" ROWTYPE="ZSUP_DCN_MESSAGES" ROWKIND="S" DATATYPE="STRU" LENG="000000" DECIMALS="000000" ACCESSMODE="T" KEYDEF="D" KEYKIND="N" KEYFDCOUNT="0000" DDTEXT="Table of zsup_dcn_messages" TYPELEN="000032" CTLENG="000000" CTDECIMALS="000000" OCCURS="00000"/>
+ <TTYP TYPENAME="ZSUP_DCN_RESPONSE_TAB" DDLANGUAGE="E" ROWTYPE="ZSUP_DCN_RESPONSE" ROWKIND="S" DATATYPE="STRU" LENG="000000" DECIMALS="000000" ACCESSMODE="T" KEYDEF="D" KEYKIND="N" KEYFDCOUNT="0000" DDTEXT="Tab of DCN Response" TYPELEN="000024" CTLENG="000000" CTDECIMALS="000000" OCCURS="00000"/>
+</nugget>
